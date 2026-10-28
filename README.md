@@ -12,4 +12,4 @@ Sticky monorepo for small daily tech demos. Each demo lives in its own folder un
 
 | Slug | Tech | Date | PR |
 |------|------|------|-----|
-| taste-direction-deck | Taste Skill v2 | 2026-10-28 | |
+| taste-direction-deck | Taste Skill v2 | 2026-10-28 | https://github.com/creativerezz/tech-demos/pull/3 |
