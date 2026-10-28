@@ -1,0 +1,74 @@
+name: Deploy to Cloudflare Pages
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: pages-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Require Cloudflare secrets
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          missing=0
+          if [ -z "${CF_TOKEN}" ]; then
+            echo "::error title=Missing secret::CLOUDFLARE_API_TOKEN is not set. Add it in GitHub → Settings → Secrets and variables → Actions."
+            missing=1
+          fi
+          if [ -z "${CF_ACCOUNT}" ]; then
+            echo "::error title=Missing secret::CLOUDFLARE_ACCOUNT_ID is not set. Add it in GitHub → Settings → Secrets and variables → Actions."
+            missing=1
+          fi
+          if [ "${missing}" -ne 0 ]; then
+            echo ""
+            echo "This workflow deploys the assembled static site from dist/pages to the Cloudflare Pages project 'tech-demos'."
+            echo "Create an API token with Cloudflare Pages edit permission and set both secrets on this repository."
+            exit 1
+          fi
+
+      - name: Build all demos
+        run: bash scripts/build-pages-site.sh
+
+      - name: Ensure Cloudflare Pages project exists
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set +e
+          output="$(bunx wrangler pages project create tech-demos --production-branch=main 2>&1)"
+          code=$?
+          set -e
+          echo "${output}"
+          if [ "${code}" -ne 0 ]; then
+            if echo "${output}" | grep -qiE 'already exists|Project name is already in use'; then
+              echo "Pages project 'tech-demos' already exists — continuing."
+            else
+              echo "::warning::Could not create Pages project (exit ${code}). Deploy may still succeed if the project exists."
+            fi
+          fi
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist/pages --project-name=tech-demos

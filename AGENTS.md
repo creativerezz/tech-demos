@@ -13,6 +13,14 @@ Every cloud agent building a demo in this repo must follow these rules.
 - Plan first using `skills/project-planning/SKILL.md`.
 - Write `apps/<slug>/PLAN.md` **before** writing application code.
 
+## Hosting (Cloudflare Pages)
+
+All demos deploy from **one** Cloudflare Pages project (`tech-demos`). Each app is served at **`https://tech-demos.pages.dev/<slug>/`**.
+
+- **`bun run build`** must produce a **static** output directory (typically `dist/`).
+- Apps must support a **sub-path base** for production builds. Set Vite (or your bundler) `base` from the **`VITE_BASE`** env var (e.g. `VITE_BASE=/<slug>/` in CI). **`bun run dev`** must keep working at **`/`** when `VITE_BASE` is unset.
+- CI runs `scripts/build-pages-site.sh`, which builds every app under `apps/*/` and assembles `dist/pages/<slug>/`. Do not add per-app Pages projects.
+
 ## Runtime and tooling
 
 - **Bun** is the runtime, package manager, and script runner for every app.
