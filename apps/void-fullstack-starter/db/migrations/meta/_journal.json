@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1793297114132,
+      "tag": "20261029180514_aberrant_zemo",
+      "breakpoints": true
+    }
+  ]
+}

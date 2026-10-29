@@ -13,3 +13,4 @@ Sticky monorepo for small daily tech demos. Each demo lives in its own folder un
 | Slug | Tech | Date | PR |
 |------|------|------|-----|
 | taste-direction-deck | Taste Skill v2 | 2026-10-28 | *(PR pending)* |
+| void-fullstack-starter | Void (VoidZero) | 2026-10-29 | *(PR pending)* |
