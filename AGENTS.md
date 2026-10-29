@@ -41,3 +41,10 @@ Every cloud agent building a demo in this repo must follow these rules.
 ## Repositories
 
 - **Never** create a new repository. All demos stay in this monorepo.
+
+## Cursor Cloud specific instructions
+
+- The only app is `apps/taste-direction-deck` (Vite + React). Bun is not on the base image. Environment install installs Bun, links it to `/usr/local/bin/bun` (login shells do not load `~/.bashrc`), then runs `bun install --frozen-lockfile` in that directory.
+- On boot, `start` serves the dev app at `http://127.0.0.1:5173` with `bun run dev -- --host 0.0.0.0 --port 5173`. If that URL already responds, startup exits.
+- Checks, from `apps/taste-direction-deck`: `bun run lint` (the two `react-refresh/only-export-components` warnings on shadcn `badge` and `button` are expected) and `bun run build`. There is no test script.
+- Product flow: the brief starts as `neighborhood coffee roaster`. An empty brief disables **Deal 3 directions**. Enter a brief, deal, select a card, then **Copy DESIGN.md snippet**. Copy calls `navigator.clipboard.writeText` and shows **Copied** only when the browser allows clipboard writes. No secrets, database, or external API.
